@@ -1,0 +1,145 @@
+/* Reset some default styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+}
+
+header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 20px;
+}
+
+.mainheader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo img {
+    height: 50px;
+}
+
+nav a {
+    margin: 0 15px;
+    text-decoration: none;
+    color: white;
+    font-weight: 500;
+}
+
+nav a:hover {
+    color: #3498db;
+}
+
+.btn button {
+    padding: 10px 20px;
+    background-color: #3498db;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.btn button:hover {
+    background-color: #2980b9;
+}
+
+main {
+    display: flex;
+    margin-top: 30px;
+}
+
+.left {
+    flex: 1;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.left h2 {
+    color: #2c3e50;
+}
+
+.left h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+.input-group input:focus {
+    border-color: #3498db;
+    outline: none;
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 15px;
+    background-color: #3498db;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+}
+
+
+.prediction-result {
+    background-color: #f4f4f9;
+    border: 2px solid #4CAF50;
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
+    font-size: 1.2em;
+    color: #333;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.prediction-result h3 {
+    font-size: 1.5em;
+    color: #4CAF50;
+    margin-bottom: 10px;
+}
+
+.prediction-result p {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #333;
+}
+.right {
+    flex: 1;
+    margin-left: 20px;
+}
+
+.map-img {
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}

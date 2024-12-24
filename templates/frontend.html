@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agrico</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS for the map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        main {
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            width: 100%;
+            height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        section {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .left {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .left h2 {
+            font-size: 24px;
+            color: #555;
+        }
+
+        .left h1 {
+            font-size: 32px;
+            color: #222;
+        }
+
+        .input-group {
+            margin-bottom: 10px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .btn-primary {
+            padding: 10px 15px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background-color: #45a049;
+        }
+
+        .prediction-result {
+            margin-top: 0px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fafafa;
+        }
+
+        #map {
+            height: 100%;
+            border-radius: 5px;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            width: 80%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .search-box button {
+            padding: 10px;
+            font-size: 14px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .search-box button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <section class="left">
+            <h2>We Are Here To Help You</h2>
+            <h1>Crop Prediction</h1>
+
+            <!-- Search Box for Address -->
+            <div class="search-box">
+                <input type="text" id="location" placeholder="Search for a location" />
+                <button onclick="searchLocation()">Search</button>
+            </div>
+
+            <!-- Form for crop prediction -->
+            <form action="{{ url_for('Crop') }}" method="post">
+                <div class="input-group">
+                    <input type="text" id="Latitude" name="Latitude" placeholder="Latitude" required>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="Longitude" name="Longitude" placeholder="Longitude" required>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="NDVI" name="NDVI" placeholder="NDVI (-0.1 to 1.0)" required>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="MaxTemp" name="MaxTemp" placeholder="MaxTemp" required>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="AveTemp" name="AveTemp" placeholder="AveTemp" required>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="MinTemp" name="MinTemp" placeholder="MinTemp" required>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="AveHumidity" name="AveHumidity" placeholder="AveHumidity" required>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="Rainfall" name="Rainfall" placeholder="Rainfall" required>
+                </div>
+                <button type="submit" class="btn-primary">Predict</button>
+            </form>
+
+            <div class="prediction-result">
+                <h3>Predicted Crop:</h3>
+                <p>{{ htmlvariable if htmlvariable else 'Your prediction result will appear here after submission.' }}</p>
+            </div>
+        </section>
+
+        <section class="right">
+            <div id="map"></div>
+        </section>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        // Initial map setup, centered on Pakistan
+        const map = L.map('map').setView([30.3753, 69.3451], 5); // Default center for Pakistan
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        const marker = L.marker([30.3753, 69.3451]).addTo(map); // Default marker
+
+        async function fetchData(lat, lon) {
+            try {
+                const response = await fetch(`/get_features?lat=${lat}&lon=${lon}`);
+                const data = await response.json();
+
+                // Populate the fields with fetched data
+                document.getElementById('NDVI').value = data.ndvi;
+                document.getElementById('MaxTemp').value = data.max_temp;
+                document.getElementById('AveTemp').value = data.avg_temp;
+                document.getElementById('MinTemp').value = data.min_temp;
+                document.getElementById('AveHumidity').value = data.avg_humidity;
+                document.getElementById('Rainfall').value = data.rainfall;
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                alert('Unable to fetch data for the selected location.');
+            }
+        }
+
+        function onMapClick(e) {
+            const lat = e.latlng.lat;
+            const lon = e.latlng.lng;
+
+            document.getElementById('Latitude').value = lat;
+            document.getElementById('Longitude').value = lon;
+
+            marker.setLatLng([lat, lon]);
+
+            // Fetch data for the selected coordinates
+            fetchData(lat, lon);
+        }
+
+        function searchLocation() {
+            const location = document.getElementById('location').value;
+            const apiKey = '84c57ab787754a13b5e1b8c65e122808'; // Replace with your actual OpenCage API key
+            const geocodeUrl = `https://api.opencagedata.com/geocode/v1/json?q=${location}&key=${apiKey}`;
+
+            fetch(geocodeUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.results.length > 0) {
+                        const lat = data.results[0].geometry.lat;
+                        const lng = data.results[0].geometry.lng;
+
+                        document.getElementById('Latitude').value = lat;
+                        document.getElementById('Longitude').value = lng;
+
+                        marker.setLatLng([lat, lng]);
+
+                        // Fetch data for the location
+                        fetchData(lat, lng);
+
+                        // Center the map on the searched location
+                        map.setView([lat, lng], 13);
+                    } else {
+                        alert('Location not found. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching geocode:', error);
+                    alert('Unable to fetch location coordinates.');
+                });
+        }
+
+        map.on('click', onMapClick);
+    </script>
+
+</body>
+
+</html>
